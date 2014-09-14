@@ -2,16 +2,10 @@
 
 struct _SortableShapeObjectPrivate
 {
-  double r, g, b;
+  int dummy;
 };
 
 G_DEFINE_TYPE_WITH_PRIVATE (SortableShapeObject, sortable_shape_object, G_TYPE_OBJECT);
-
-static void
-sortable_shape_object_set_cairo_context (SortableShapeObject *self, cairo_t *cr)
-{
-  self->cr = cr;
-}
 
 static void
 sortable_shape_object_class_init (SortableShapeObjectClass *klass)
@@ -31,11 +25,19 @@ sortable_shape_object_init (SortableShapeObject *self)
   /* priv->hsize = 42; */
 }
 
-static void
+/* public */
+
+void
 sortable_shape_object_set_color (SortableShapeObject *self, double r, double g,
     double b)
 {
-  self->priv->r = r;
-  self->priv->g = g;
-  self->priv->b = b;
+  self->r = r;
+  self->g = g;
+  self->b = b;
+}
+
+void
+sortable_shape_object_set_cairo_context (SortableShapeObject *self, cairo_t *cr)
+{
+  self->cr = cr;
 }

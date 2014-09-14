@@ -2,15 +2,17 @@
 
 struct _SortableShapeSimpleBarPrivate
 {
+  guint dummy;
 };
 
-G_DEFINE_TYPE_WITH_PRIVATE (SortableShapeSimpleBar, sortable_shape_simple_bar, G_TYPE_OBJECT);
+G_DEFINE_TYPE_WITH_PRIVATE (SortableShapeSimpleBar, sortable_shape_simple_bar, SORTABLE_SHAPE_TYPE_OBJECT);
 
 
 static void
 sortable_shape_simple_bar_draw (SortableShapeObject *self, double x, double y)
 {
-  /* cairo_set_source_rgb (self->cr, 0.6, 0.6, 0.6); */
+
+  cairo_set_source_rgb (self->cr, self->r, self->g, self->b);
   cairo_rectangle (self->cr, x, y, self->width, self->height);
   cairo_fill (self->cr);
 }
@@ -23,6 +25,8 @@ sortable_shape_simple_bar_class_init (SortableShapeSimpleBarClass *klass)
   sortable_shape_class->draw = sortable_shape_simple_bar_draw;
 }
 
+
+
 static void
 sortable_shape_simple_bar_init (SortableShapeSimpleBar *self)
 {
@@ -31,5 +35,4 @@ sortable_shape_simple_bar_init (SortableShapeSimpleBar *self)
    */
   /* SortableShapeSimpleBarPrivate *priv = sortable_shape_simple_bar_get_instance_private (self); */
 
-  /* priv->hsize = 42; */
 }

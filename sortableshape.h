@@ -40,6 +40,7 @@ struct _SortableShapeObject
   cairo_t *cr;
   double height;
   double width;
+  double r, g, b;
 };
 
 struct _SortableShapeObjectClass
@@ -58,5 +59,10 @@ GType sortable_shape_object_get_type (void);
 /*
  * Method definitions.
  */
+
+void sortable_shape_object_set_color (SortableShapeObject *self, double r,
+    double g, double b);
+void sortable_shape_object_set_cairo_context (SortableShapeObject *self,
+    cairo_t *cr);
 
 #endif /* __SORTABLE_SHAPE_OBJECT_H__ */
