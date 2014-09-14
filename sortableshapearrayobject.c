@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <unistd.h>
 
 #include "sortableshapearrayobject.h"
 #include "sortableshape.h"
@@ -26,6 +27,7 @@ sortable_shape_array_object_init (SortableShapeArrayObject *self)
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE (self,
       SORTABLE_SHAPE_ARRAY_TYPE_OBJECT, SortableShapeArrayObjectPrivate);
   self->len = 0;
+  self->cr = NULL;
   self->padding = DEFAULT_PADDING;
 }
 
@@ -96,44 +98,60 @@ sortable_shape_array_object_simple_bar_create (SortableShapeArrayObject *self,
 int
 sortable_shape_array_object_cmp_by_height (void * a, void * b)
 {
-  printf ("HEY BUDDY\n");
-  SortableShapeObject *x = (SortableShapeObject *) a;
-  SortableShapeObject *y = (SortableShapeObject *) b;
+  SortableShapeObject **x = (SortableShapeObject **) a;
+  SortableShapeObject **y = (SortableShapeObject **) b;
 
-
-  return x->height - y->height;
+  return (*x)->height - (*y)->height;
 }
 
 static void
 _do_interactive_sort (void * array, int len, void * a, void * b, void * data)
 {
-  printf ("TEST\n");
+  SortableShapeArrayObject *shape_array = (SortableShapeArrayObject *) data;
+
+  cairo_rectangle (shape_array->cr, 0, 0, 200, 200);
+  cairo_set_source_rgb(shape_array->cr, 255, 255, 255);
+  cairo_fill (shape_array->cr);
+
+  sortable_shape_array_object_draw (shape_array, 0, 0);
+
+  sleep (1);
 }
 
-/* This function is too ugly */
+/* This function is too ugly. Does somebody know how to make it short? */
 void
 sortable_shape_array_object_interactive_sort (SortableShapeArrayObject * self,
     void (* csort_func) (void *, int, int, int (*) (void *, void *),
         void (*) (void *, int, void *, void *, void *), void *),
     int (* cmp_func) (void *, void *))
 {
-  printf ("B1\n");
-  (*csort_func) (self->priv->array, self->len, sizeof (SortableShapeObject *),
-      *cmp_func, _do_interactive_sort, NULL);
-  printf ("B2\n");
+  csort_func (self->priv->array, self->len, sizeof (SortableShapeObject *),
+      cmp_func, _do_interactive_sort, self);
 }
 
-SortableShapeArrayObject *
-sortable_shape_array_object_new (cairo_t *cr)
+void
+DEBUG_SORTABLE_SHAPE_ARRAY_OBJECT_BY_HEIGHT (SortableShapeArrayObject * self)
 {
-  SortableShapeArrayObject *self;
+  int i;
+  printf ("{\n");
+  for (i = 0; i < self->len; i++)
+    printf ("%.2f,\n", self->priv->array[i]->height);
+  printf ("}\n");
+}
 
-  self = g_object_new (SORTABLE_SHAPE_ARRAY_TYPE_OBJECT, NULL);
+void
+sortable_shape_array_object_set_cairo_context (SortableShapeArrayObject * self,
+    cairo_t * cr)
+{
   self->cr = cr;
 
   cairo_rectangle (self->cr, 0, 0, 200, 200);
   cairo_set_source_rgb(self->cr, 255, 255, 255);
   cairo_fill (self->cr);
+}
 
-  return self;
+SortableShapeArrayObject *
+sortable_shape_array_object_new ()
+{
+  return g_object_new (SORTABLE_SHAPE_ARRAY_TYPE_OBJECT, NULL);
 }

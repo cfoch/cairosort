@@ -2,6 +2,11 @@
 #include <stdio.h>
 #include <string.h>
 
+
+typedef void (* CSortCmpFunction) (void *, void *);
+typedef void (* CSortFunction) (void *, int, int, int (*) (void *, void *),
+    void (*) (void *, int, void *, void *, void *, void *), void *);
+
 int csort_cmp_int_func (void * a, void * b);
 
 void csort_bubble_sort (void * array, int len, int size,

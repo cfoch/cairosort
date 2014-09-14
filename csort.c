@@ -24,9 +24,8 @@ csort_bubble_sort (void * array, int len, int size,
     void * do_something_data)
 {
   int i, j;
-  printf ("HOO\n");
   for (i = 0; i < len; i++)
-    for (j = 0; j < len - i; j++) {
+    for (j = 0; j < len - i - 1; j++) {
       char *a, *b;
       a = (char *) array + j * size;
       b = (char *) array + (j + 1) * size;
