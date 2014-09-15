@@ -30,8 +30,8 @@ csort_bubble_sort (void * array, int len, int size,
       a = (char *) array + j * size;
       b = (char *) array + (j + 1) * size;
 
+      csort_swap (a, b, size);
       if ((*csort_cmp_func) (a, b) >= 0) {
-        csort_swap (a, b, size);
         if (do_something)
           (*do_something) (array, len, a, b, do_something_data);
       }

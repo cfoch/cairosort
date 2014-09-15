@@ -27,7 +27,6 @@ sortable_shape_array_object_init (SortableShapeArrayObject *self)
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE (self,
       SORTABLE_SHAPE_ARRAY_TYPE_OBJECT, SortableShapeArrayObjectPrivate);
   self->len = 0;
-  self->cr = NULL;
   self->padding = DEFAULT_PADDING;
 }
 
@@ -114,19 +113,20 @@ _do_interactive_sort (void * array, int len, void * a, void * b, void * data)
   cairo_fill (shape_array->cr);
 
   sortable_shape_array_object_draw (shape_array, 0, 0);
-
+  
+  printf ("INTERACTIVE\n");
   sleep (1);
 }
 
-/* This function is too ugly. Does somebody know how to make it short? */
+/* This function is too ugly */
 void
 sortable_shape_array_object_interactive_sort (SortableShapeArrayObject * self,
     void (* csort_func) (void *, int, int, int (*) (void *, void *),
         void (*) (void *, int, void *, void *, void *), void *),
     int (* cmp_func) (void *, void *))
 {
-  csort_func (self->priv->array, self->len, sizeof (SortableShapeObject *),
-      cmp_func, _do_interactive_sort, self);
+  (*csort_func) (self->priv->array, self->len, sizeof (SortableShapeObject *),
+      *cmp_func, _do_interactive_sort, self);
 }
 
 void
@@ -139,19 +139,17 @@ DEBUG_SORTABLE_SHAPE_ARRAY_OBJECT_BY_HEIGHT (SortableShapeArrayObject * self)
   printf ("}\n");
 }
 
-void
-sortable_shape_array_object_set_cairo_context (SortableShapeArrayObject * self,
-    cairo_t * cr)
+SortableShapeArrayObject *
+sortable_shape_array_object_new (cairo_t *cr)
 {
+  SortableShapeArrayObject *self;
+
+  self = g_object_new (SORTABLE_SHAPE_ARRAY_TYPE_OBJECT, NULL);
   self->cr = cr;
 
   cairo_rectangle (self->cr, 0, 0, 200, 200);
   cairo_set_source_rgb(self->cr, 255, 255, 255);
   cairo_fill (self->cr);
-}
 
-SortableShapeArrayObject *
-sortable_shape_array_object_new ()
-{
-  return g_object_new (SORTABLE_SHAPE_ARRAY_TYPE_OBJECT, NULL);
+  return self;
 }

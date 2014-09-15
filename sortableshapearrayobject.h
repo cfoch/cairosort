@@ -58,7 +58,7 @@ GType sortable_shape_array_object_get_type (void);
  * Method definitions.
  */
 
-SortableShapeArrayObject *sortable_shape_array_object_new ();
+SortableShapeArrayObject *sortable_shape_array_object_new (cairo_t *cr);
 int sortable_shape_array_object_cmp_by_height (void * a, void * b);
 
 
