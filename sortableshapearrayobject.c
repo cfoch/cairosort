@@ -34,6 +34,23 @@ sortable_shape_array_object_init (SortableShapeArrayObject *self)
 
 /* public */
 
+
+static void
+sortable_shape_array_object_clear_cairo_context (
+    SortableShapeArrayObject * self)
+{
+  int width, height;
+  cairo_surface_t *surface;
+
+  surface = cairo_get_target (self->cr);
+  width = cairo_image_surface_get_width (surface);
+  height = cairo_image_surface_get_height (surface);
+
+  cairo_rectangle (self->cr, 0, 0, width, height);
+  cairo_set_source_rgb(self->cr, 255, 255, 255);
+  cairo_fill (self->cr);
+}
+
 void
 sortable_shape_array_object_draw (SortableShapeArrayObject *self,
     double x, double y)
@@ -103,30 +120,38 @@ sortable_shape_array_object_cmp_by_height (void * a, void * b)
   return (*x)->height - (*y)->height;
 }
 
-static void
-_do_interactive_sort (void * array, int len, void * a, void * b, void * data)
+void
+_export_to_image (void * array, int len, void * a, void * b, void * dummy_data)
 {
-  SortableShapeArrayObject *shape_array = (SortableShapeArrayObject *) data;
+  cairo_surface_t *surface;
+  struct _data_to_image * data = (struct _data_to_image *) dummy_data;
 
-  cairo_rectangle (shape_array->cr, 0, 0, 200, 200);
-  cairo_set_source_rgb(shape_array->cr, 255, 255, 255);
-  cairo_fill (shape_array->cr);
-
-  sortable_shape_array_object_draw (shape_array, 0, 0);
   
-  printf ("INTERACTIVE\n");
-  sleep (1);
+  sortable_shape_array_object_clear_cairo_context (data->shape_array);
+
+  sortable_shape_array_object_draw (data->shape_array, 0, 0);
+
+  surface = cairo_get_target (data->shape_array->cr);
+  cairo_surface_write_to_png (surface,
+      g_strdup_printf ("out/%d.png", data->step));
+
+  data->step++;
 }
 
 /* This function is too ugly */
 void
-sortable_shape_array_object_interactive_sort (SortableShapeArrayObject * self,
+sortable_shape_array_object_sort_to_images (SortableShapeArrayObject * self,
     void (* csort_func) (void *, int, int, int (*) (void *, void *),
         void (*) (void *, int, void *, void *, void *), void *),
     int (* cmp_func) (void *, void *))
 {
-  (*csort_func) (self->priv->array, self->len, sizeof (SortableShapeObject *),
-      *cmp_func, _do_interactive_sort, self);
+  struct _data_to_image *data = malloc (sizeof (struct _data_to_image));
+  
+  data->shape_array = self;
+  data->step = 0;
+
+  csort_func (self->priv->array, self->len, sizeof (SortableShapeObject *),
+      *cmp_func, _export_to_image, data);
 }
 
 void
@@ -139,17 +164,28 @@ DEBUG_SORTABLE_SHAPE_ARRAY_OBJECT_BY_HEIGHT (SortableShapeArrayObject * self)
   printf ("}\n");
 }
 
-SortableShapeArrayObject *
-sortable_shape_array_object_new (cairo_t *cr)
-{
-  SortableShapeArrayObject *self;
 
-  self = g_object_new (SORTABLE_SHAPE_ARRAY_TYPE_OBJECT, NULL);
+void
+sortable_shape_array_object_set_cairo_context (SortableShapeArrayObject * self,
+    cairo_t *cr)
+{
+  int i;
   self->cr = cr;
+
+  for (i = 0; i < self->len; i++) {
+    SortableShapeObject *shape;
+
+    shape = self->priv->array[i];
+    sortable_shape_object_set_cairo_context (shape, self->cr);
+  }
 
   cairo_rectangle (self->cr, 0, 0, 200, 200);
   cairo_set_source_rgb(self->cr, 255, 255, 255);
   cairo_fill (self->cr);
+}
 
-  return self;
+SortableShapeArrayObject *
+sortable_shape_array_object_new (cairo_t *cr)
+{
+  return g_object_new (SORTABLE_SHAPE_ARRAY_TYPE_OBJECT, NULL);
 }

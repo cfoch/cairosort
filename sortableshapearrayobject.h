@@ -8,6 +8,7 @@
 
 #include <glib-object.h>
 #include <cairo.h>
+#include <gtk/gtk.h>
 
 /*
  * Potentially, include other headers on which this header depends.
@@ -58,8 +59,14 @@ GType sortable_shape_array_object_get_type (void);
  * Method definitions.
  */
 
-SortableShapeArrayObject *sortable_shape_array_object_new (cairo_t *cr);
+SortableShapeArrayObject *sortable_shape_array_object_new ();
 int sortable_shape_array_object_cmp_by_height (void * a, void * b);
+void sortable_shape_array_object_set_cairo_context (SortableShapeArrayObject * self, cairo_t *cr);
 
+
+struct _data_to_image {
+  SortableShapeArrayObject *shape_array;
+  int step;
+};
 
 #endif /* __SORTABLE_SHAPE_ARRAY_OBJECT_H__ */
