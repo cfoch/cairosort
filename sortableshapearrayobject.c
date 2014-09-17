@@ -43,6 +43,7 @@ sortable_shape_array_object_clear_cairo_context (
   cairo_surface_t *surface;
 
   surface = cairo_get_target (self->cr);
+
   width = cairo_image_surface_get_width (surface);
   height = cairo_image_surface_get_height (surface);
 
@@ -123,18 +124,55 @@ sortable_shape_array_object_cmp_by_height (void * a, void * b)
 void
 _export_to_image (void * array, int len, void * a, void * b, void * dummy_data)
 {
-  cairo_surface_t *surface;
-  struct _data_to_image * data = (struct _data_to_image *) dummy_data;
-
+  /* TODO: Avoid repeating code. We could create a function that outputs an
+    image file. It would save some lines.
+  */
   
-  sortable_shape_array_object_clear_cairo_context (data->shape_array);
+  cairo_surface_t *surface;
+  SortableShapeObject *shape_a, *shape_b;
+  struct _data_to_image * data;
+  double delta = 70.0;
 
-  sortable_shape_array_object_draw (data->shape_array, 0, 0);
-
+  data = (struct _data_to_image *) dummy_data;
   surface = cairo_get_target (data->shape_array->cr);
+  shape_a = *((SortableShapeObject **) a);
+  shape_b = *((SortableShapeObject **) b);
+
+  /* Draw/Output initial state of array*/
+  sortable_shape_array_object_clear_cairo_context (data->shape_array);
+  sortable_shape_array_object_draw (data->shape_array, 0, 0);
   cairo_surface_write_to_png (surface,
       g_strdup_printf ("out/%d.png", data->step));
+  data->step++;
 
+  /* Do animation for item A */
+  shape_a->height += delta;  
+  sortable_shape_array_object_clear_cairo_context (data->shape_array);
+  sortable_shape_array_object_draw (data->shape_array, 0, 0);
+  cairo_surface_write_to_png (surface,
+      g_strdup_printf ("out/%d.png", data->step));
+  data->step++;
+
+  shape_a->height -= delta;  
+  sortable_shape_array_object_clear_cairo_context (data->shape_array);
+  sortable_shape_array_object_draw (data->shape_array, 0, 0);
+  cairo_surface_write_to_png (surface,
+      g_strdup_printf ("out/%d.png", data->step));
+  data->step++;
+
+  /* Do animation for item B */
+  shape_b->height += delta;  
+  sortable_shape_array_object_clear_cairo_context (data->shape_array);
+  sortable_shape_array_object_draw (data->shape_array, 0, 0);
+  cairo_surface_write_to_png (surface,
+      g_strdup_printf ("out/%d.png", data->step));
+  data->step++;
+
+  shape_b->height -= delta;  
+  sortable_shape_array_object_clear_cairo_context (data->shape_array);
+  sortable_shape_array_object_draw (data->shape_array, 0, 0);
+  cairo_surface_write_to_png (surface,
+      g_strdup_printf ("out/%d.png", data->step));
   data->step++;
 }
 

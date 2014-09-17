@@ -61,7 +61,7 @@ main (int argc, char *argv[])
   cairo_t *cr;
 
   array = sortable_shape_array_object_new ();
-  surface = cairo_image_surface_create (CAIRO_FORMAT_ARGB32, 800, 800);
+  surface = cairo_image_surface_create (CAIRO_FORMAT_ARGB32, 400, 400);
   cr = cairo_create (surface);
   sortable_shape_array_object_set_cairo_context (array, cr);
 
@@ -74,7 +74,7 @@ main (int argc, char *argv[])
 
   //cairo_surface_write_to_png (surface, "example.png");
 
-
+  sortable_shape_array_object_draw (array, 0, 0);
   sortable_shape_array_object_sort_to_images (array, csort_bubble_sort,
       sortable_shape_array_object_cmp_by_height);
 
